@@ -3,27 +3,13 @@ import numpy as np
 
 from pyfboxlib import fboxlib, mfarray
 
+import base
 
-class multifab(object):
+class multifab(base.BLObject):
   """MultiFAB."""
 
-  def __init__(self):
-    self._fid = None
-
-  @property
-  def fid(self):
-    return self._fid
-
-  @fid.setter
-  def fid(self, value):
-    assert self._fid is None
-    assert isinstance(value, int)
-    self._fid = value
-
-
   def __str__(self):
-    return 'multifab (id %d)' % self.fid
-
+    return 'multifab (id %d)' % self.oid
 
   def create(self, components=1, ghost_cells=1, boxes=[]):
     """Create a multifab from a list of boxes.
@@ -31,19 +17,25 @@ class multifab(object):
     Implicitly creates a layout.
     """
 
-    self.fid = fboxlib.create_multifab(components, ghost_cells, boxes)
+    if boxes:
+      self.oid = fboxlib.create_multifab_from_boxes(components, ghost_cells, boxes)
 
 
   def echo(self):
-    fboxlib.print_multifab(self.fid)
+    fboxlib.print_multifab(self.oid)
 
 
-  # XXX: add a more fancy get/set?
+  # XXX: add a more fancy get/set
   def array(self, box):
-    return mfarray(self.fid, box)
-
+    return mfarray(self.oid, box)
 
   # XXX: delete routines...
+
+
+
+
+
+
 
 
 

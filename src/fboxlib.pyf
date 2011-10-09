@@ -13,10 +13,10 @@ module fboxlib
     !   integer intent(in) :: comm
     ! end subroutine set_comm
 
-  subroutine create_multifab(nc, ng, boxes, nboxes, dim, fid)
+  subroutine create_multifab_from_boxes(nc, ng, boxes, nboxes, dim, fid)
     integer, intent(in)  :: nc, ng, dim, nboxes, boxes(nboxes,2,dim)
     integer, intent(out) :: fid
-  end subroutine create_multifab
+  end subroutine create_multifab_from_boxes
 
   subroutine print_multifab(fid)
     implicit none

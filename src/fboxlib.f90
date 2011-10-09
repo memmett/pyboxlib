@@ -1,13 +1,7 @@
 module fboxlib
 
-  use multifab_module
-  !use ml_layout_module
-
+  use blobjects
   implicit none
-
-  integer, parameter :: MAXMFABS = 256
-  type(multifab), save :: mfabs(MAXMFABS)
-  integer, save :: nmfabs = 0
 
 contains
 
@@ -38,35 +32,36 @@ contains
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! multifab routines
 
-  subroutine create_multifab(nc, ng, boxes, nboxes, dim, fid)
+  subroutine create_multifab_from_boxes(nc,ng,boxes,nboxes,dim,oid)
     implicit none
     integer, intent(in)  :: nc, ng, dim, nboxes, boxes(nboxes,2,dim)
-    integer, intent(out) :: fid
+    integer, intent(out) :: oid
 
     integer :: i
     type(box) :: bs(nboxes)
     type(boxarray) :: ba
     type(layout) :: la
+    type(multifab), pointer :: mfab
 
     do i=1,nboxes
        bs(i) = make_box(boxes(i,1,:), boxes(i,2,:))
     end do
 
-    nmfabs = nmfabs + 1
+    call pybl_multifab_new(oid,mfab)
 
     call build(ba, bs)
     call build(la, ba)
-    call build(mfabs(nmfabs), la, nc=nc, ng=ng)
+    call build(mfab, la, nc=nc, ng=ng)
 
-    fid = nmfabs
+  end subroutine create_multifab_from_boxes
 
-  end subroutine create_multifab
-
-  subroutine print_multifab(fid)
+  subroutine print_multifab(oid)
     implicit none
-    integer, intent(in) :: fid
+    integer, intent(in) :: oid
+    type(multifab), pointer :: mfab
 
-    call print(mfabs(fid))
+    call pybl_multifab_get(oid,mfab)
+    call print(mfab)
   end subroutine print_multifab
 
   ! subroutine initialize()
@@ -96,17 +91,20 @@ contains
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  subroutine multifab_as_numpy_f(mfid, nbox, aptr, nx, ny, nz, nc) bind(c)
+  subroutine multifab_as_numpy_f(oid, nbox, aptr, nx, ny, nz, nc) bind(c)
     use iso_c_binding
     implicit none
 
-    integer(c_int), intent(in)  :: mfid, nbox
+    integer(c_int), intent(in)  :: oid, nbox
     type(c_ptr), intent(out)    :: aptr
     integer(c_int), intent(out) :: nx, ny, nz, nc
 
     real(8), pointer :: fptr(:,:,:,:)
+    type(multifab), pointer :: mfab
 
-    fptr => dataptr(mfabs(mfid),nbox)
+    call pybl_multifab_get(oid,mfab)
+
+    fptr => dataptr(mfab,nbox)
 
     aptr = c_loc(fptr(1,1,1,1))
     nx   = size(fptr,1)
