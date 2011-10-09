@@ -1,36 +1,3 @@
-python module pyfboxlib
-
-    interface
-module fboxlib
-
-  subroutine hello
-  end subroutine hello
-
-  subroutine open
-  end subroutine open
-
-  subroutine close
-  end subroutine close
-
-    ! subroutine set_comm(comm)
-    !   integer intent(in) :: comm
-    ! end subroutine set_comm
-
-  subroutine create_multifab(nc, ng, boxes, nboxes, dim, fid)
-    integer, intent(in)  :: nc, ng, dim, nboxes, boxes(nboxes,2,dim)
-    integer, intent(out) :: fid
-  end subroutine create_multifab
-
-  subroutine print_multifab(fid)
-    implicit none
-    integer, intent(in) :: fid
-  end subroutine print_multifab
-
-end module fboxlib
-
-    end interface
-
-  usercode '''
 /*
  * BoxLib to NumPy routines
  *
@@ -41,6 +8,9 @@ end module fboxlib
 void multifab_as_numpy_f(int *mfid, int *nbox, void *ptr, int *nx, int *ny, int *nz, int *nc);
 
 /*
+divert(1)dnl
+{"mfarray", multifab_as_numpy, METH_VARARGS, "Return NumPy array associated with a BoxLib multifab."},
+divert(0)dnl
 */
 
 PyObject *
@@ -71,11 +41,3 @@ multifab_as_numpy (PyObject * self, PyObject * args)
   Py_INCREF(arr);
   return arr;
 }
-
-  '''
-  pymethoddef '''
-{"mfarray", multifab_as_numpy, METH_VARARGS, "Return NumPy array associated with a BoxLib multifab."},
-
-  '''
-
-end python module pyfboxlib

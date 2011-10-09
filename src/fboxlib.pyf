@@ -1,0 +1,26 @@
+module fboxlib
+
+  subroutine hello
+  end subroutine hello
+
+  subroutine open
+  end subroutine open
+
+  subroutine close
+  end subroutine close
+
+    ! subroutine set_comm(comm)
+    !   integer intent(in) :: comm
+    ! end subroutine set_comm
+
+  subroutine create_multifab(nc, ng, boxes, nboxes, dim, fid)
+    integer, intent(in)  :: nc, ng, dim, nboxes, boxes(nboxes,2,dim)
+    integer, intent(out) :: fid
+  end subroutine create_multifab
+
+  subroutine print_multifab(fid)
+    implicit none
+    integer, intent(in) :: fid
+  end subroutine print_multifab
+
+end module fboxlib
