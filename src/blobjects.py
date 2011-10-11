@@ -1,5 +1,17 @@
+"""BoxLib/Python object store for various F90 types.
 
-src = '''\
+For each BoxLib type in *types*, an object store is created along with
+routines for adding and retrieving objects.  Objects in each store are
+identified by an object id(oid).
+
+The current implementation for a store is simply a fixed sized array.
+"""
+
+types = [ 'lmultifab', 'multifab', 'layout', 'boxarray' ]
+
+# XXX: probably better to use arrays of pointers here!
+
+module = '''\
 module blobjects
   use multifab_module
   use layout_module
@@ -10,12 +22,12 @@ contains
 end module blobjects
 '''
 
-store = '''\
+store = '''
 type({type}), save, target :: pybl_{type}_store(PYBL_MAX_STORE)
 integer, save :: pybl_{type}_count = 0
 '''
 
-get = '''\
+get = '''
 subroutine pybl_{type}_get(oid,object)
   integer, intent(in) :: oid
   type({type}), pointer, intent(out) :: object
@@ -23,7 +35,7 @@ subroutine pybl_{type}_get(oid,object)
   object => pybl_{type}_store(oid)
 end subroutine pybl_{type}_get'''
 
-new = '''\
+new = '''
 subroutine pybl_{type}_new(oid,object)
   integer, intent(out) :: oid
   type({type}), pointer, intent(out) :: object
@@ -37,13 +49,14 @@ end subroutine pybl_{type}_new
 
 stores = []
 routines = []
-for t in ['multifab', 'layout']:
+
+for t in types:
     stores.append(store.format(type=t))
     routines.append(get.format(type=t))
     routines.append(new.format(type=t))
 
 with open('blobjects.f90', 'w') as f:
-    f.write(src.format(
+    f.write(module.format(
         stores='\n'.join(stores),
         routines='\n'.join(routines)))
 

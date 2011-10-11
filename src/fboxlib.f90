@@ -30,6 +30,39 @@ contains
   ! end subroutine set_comm
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! layout routines
+
+  subroutine create_layout_from_boxes(boxes,nboxes,dim,oid)
+    implicit none
+    integer, intent(in)  :: dim, nboxes, boxes(nboxes,2,dim)
+    integer, intent(out) :: oid
+
+    integer :: i
+    type(box) :: bs(nboxes)
+    type(boxarray) :: ba
+    type(layout), pointer :: la
+
+    do i=1,nboxes
+       bs(i) = make_box(boxes(i,1,:), boxes(i,2,:))
+    end do
+
+    call pybl_layout_new(oid,la)
+
+    call build(ba, bs)
+    call build(la, ba)
+
+  end subroutine create_layout_from_boxes
+
+  subroutine print_layout(oid)
+    implicit none
+    integer, intent(in) :: oid
+    type(layout), pointer :: la
+
+    call pybl_layout_get(oid,la)
+    call print(la)
+  end subroutine print_layout
+
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! multifab routines
 
   subroutine create_multifab_from_boxes(nc,ng,boxes,nboxes,dim,oid)
@@ -52,6 +85,7 @@ contains
     call build(ba, bs)
     call build(la, ba)
     call build(mfab, la, nc=nc, ng=ng)
+    call setval(mfab, 0.0d0)
 
   end subroutine create_multifab_from_boxes
 
@@ -64,54 +98,72 @@ contains
     call print(mfab)
   end subroutine print_multifab
 
-  ! subroutine initialize()
-  !   implicit none
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! lmultifab routines
 
-  !   type(box) :: boxes(1)
-  !   type(boxarray) :: ba
-  !   type(layout) :: la
+  subroutine create_lmultifab_from_boxes(boxes,nboxes,dim,oid)
+    implicit none
+    integer, intent(in)  :: dim, nboxes, boxes(nboxes,2,dim)
+    integer, intent(out) :: oid
 
-  !   real(8), pointer :: fptr(:,:,:,:)
+    integer :: i
+    type(box) :: bs(nboxes)
+    type(boxarray) :: ba
+    type(layout) :: la
+    type(lmultifab), pointer :: mfab
 
-  !   ! build a test multifab for now
+    do i=1,nboxes
+       bs(i) = make_box(boxes(i,1,:), boxes(i,2,:))
+    end do
 
-  !   boxes(1) = make_box((/0, 0/), (/32,32/))
-  !   call build(ba, boxes)
-  !   call build(la, ba)
-  !   call build(mfabs(1), la, nc=1, ng=1)
+    call pybl_lmultifab_new(oid,mfab)
 
-  !   ! put some data in the test multifab
+    call build(ba, bs)
+    call build(la, ba)
+    call build(mfab, la)
+    call setval(mfab, .false.)
 
-  !   fptr => dataptr(mfabs(1),1)
+  end subroutine create_lmultifab_from_boxes
 
-  !   fptr(1,1,1,1) = 1.0
-  !   fptr(1,3,1,1) = 3.0
+  subroutine print_lmultifab(oid)
+    implicit none
+    integer, intent(in) :: oid
+    type(lmultifab), pointer :: mfab
 
-  ! end subroutine initialize
+    call pybl_lmultifab_get(oid,mfab)
+    call print(mfab)
+  end subroutine print_lmultifab
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! boxarray routines
 
-  subroutine multifab_as_numpy_f(oid, nbox, aptr, nx, ny, nz, nc) bind(c)
-    use iso_c_binding
+  subroutine print_boxarray(oid)
+    implicit none
+    integer, intent(in) :: oid
+    type(boxarray), pointer :: ba
+
+    call pybl_boxarray_get(oid, ba)
+    call print(ba)
+  end subroutine print_boxarray
+
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! regrid
+
+  subroutine regrid(tags_oid, buffer_width, boxes_oid)
+    use cluster_module
     implicit none
 
-    integer(c_int), intent(in)  :: oid, nbox
-    type(c_ptr), intent(out)    :: aptr
-    integer(c_int), intent(out) :: nx, ny, nz, nc
+    integer, intent(in) :: tags_oid, buffer_width
+    integer, intent(out) :: boxes_oid
 
-    real(8), pointer :: fptr(:,:,:,:)
-    type(multifab), pointer :: mfab
+    type(lmultifab), pointer :: tags
+    type(boxarray), pointer :: boxes
 
-    call pybl_multifab_get(oid,mfab)
+    call pybl_boxarray_new(boxes_oid, boxes)
 
-    fptr => dataptr(mfab,nbox)
+    call pybl_lmultifab_get(tags_oid, tags)
+    call cluster(boxes, tags, buffer_width)
 
-    aptr = c_loc(fptr(1,1,1,1))
-    nx   = size(fptr,1)
-    ny   = size(fptr,2)
-    nz   = size(fptr,3)
-    nc   = size(fptr,4)
-
-  end subroutine multifab_as_numpy_f
+  end subroutine regrid
 
 end module fboxlib
