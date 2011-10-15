@@ -65,6 +65,44 @@ contains
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! multifab routines
 
+  subroutine get_multifab_info(oid, dim, nboxes, nc, ng)
+    implicit none
+    integer, intent(in) :: oid
+    integer, intent(out) :: dim, nboxes, nc, ng
+    type(multifab), pointer :: mfab
+
+    call pybl_multifab_get(oid,mfab)
+    dim = mfab%dim
+    nboxes = mfab%nboxes
+    nc = mfab%nc
+    ng = mfab%ng
+  end subroutine get_multifab_info
+
+  subroutine get_fab_info(oid, nbox, dim, nc, bx_lo, bx_hi, pbx_lo, pbx_hi, ibx_lo, ibx_hi)
+    implicit none
+    integer, intent(in) :: oid, nbox
+    integer, intent(out) :: dim, nc
+    integer, intent(out), dimension(3) :: bx_lo, bx_hi, pbx_lo, pbx_hi, ibx_lo, ibx_hi
+    type(multifab), pointer :: mfab
+    type(box) :: bx
+
+    call pybl_multifab_get(oid,mfab)
+    dim = get_dim(mfab%fbs(nbox))
+    nc = ncomp(mfab%fbs(nbox))
+
+    bx = get_box(mfab%fbs(nbox))
+    bx_lo = bx%lo
+    bx_hi = bx%hi
+
+    bx = get_pbox(mfab%fbs(nbox))
+    pbx_lo = bx%lo
+    pbx_hi = bx%hi
+
+    bx = get_ibox(mfab%fbs(nbox))
+    ibx_lo = bx%lo
+    ibx_hi = bx%hi
+  end subroutine get_fab_info
+
   subroutine create_multifab_from_boxes(nc,ng,boxes,nboxes,dim,oid)
     implicit none
     integer, intent(in)  :: nc, ng, dim, nboxes, boxes(nboxes,2,dim)
@@ -88,6 +126,24 @@ contains
     call setval(mfab, 0.0d0)
 
   end subroutine create_multifab_from_boxes
+
+  subroutine create_multifab_from_boxarray(nc,ng,boxarray_oid,oid)
+    implicit none
+    integer, intent(in)  :: nc, ng, boxarray_oid
+    integer, intent(out) :: oid
+
+    type(boxarray), pointer :: ba
+    type(layout) :: la
+    type(multifab), pointer :: mfab
+
+    call pybl_multifab_new(oid,mfab)
+    call pybl_boxarray_get(boxarray_oid,ba)
+
+    call build(la, ba)
+    call build(mfab, la, nc=nc, ng=ng)
+    call setval(mfab, 0.0d0)
+
+  end subroutine create_multifab_from_boxarray
 
   subroutine print_multifab(oid)
     implicit none

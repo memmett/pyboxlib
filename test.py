@@ -7,10 +7,11 @@ fboxlib.open()
 mfab = multifab()
 mfab.create(boxes=[((1,1), (3,3)), ((7,7), (9,9))])
 
-a = mfab.array(1)
-a[0,1] = 22.0
+fab = mfab.fab(1)
+fab[0,1] = 22.0
 
-#mfab.echo()
+
+mfab.echo()
 
 la = layout()
 la.create(boxes=[((1,1), (3,3)), ((7,7), (9,9))])
@@ -18,16 +19,21 @@ la.create(boxes=[((1,1), (3,3)), ((7,7), (9,9))])
 
 lmfab = lmultifab()
 #lmfab.create(boxes=[((1,1), (3,3)), ((4,4), (20,20))])
-lmfab.create(boxes=[((4,4), (20,20))])
+lmfab.create(boxes=[((4,4), (800,800))])
 
 b = lmfab.array(1)
 b[4:10,4:10] = True
 
-lmfab.echo()
+#lmfab.echo()
 
 ba = boxarray()
 ba.create_from_regrid(lmfab)
 ba.echo()
+
+mfab = multifab()
+mfab.create(boxarray=ba)
+mfab.echo()
+
 
 fboxlib.close()
 

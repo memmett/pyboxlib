@@ -23,7 +23,11 @@ end module blobjects
 '''
 
 store = '''
-type({type}), save, target :: pybl_{type}_store(PYBL_MAX_STORE)
+type {type}_store
+  integer :: oid = -1
+  type({type}), pointer :: ptr
+end type {type}_store
+type({type}_store), save :: pybl_{type}_store(PYBL_MAX_STORE)
 integer, save :: pybl_{type}_count = 0
 '''
 
@@ -32,7 +36,7 @@ subroutine pybl_{type}_get(oid,object)
   integer, intent(in) :: oid
   type({type}), pointer, intent(out) :: object
 
-  object => pybl_{type}_store(oid)
+  object => pybl_{type}_store(oid)%ptr
 end subroutine pybl_{type}_get'''
 
 new = '''
@@ -40,10 +44,11 @@ subroutine pybl_{type}_new(oid,object)
   integer, intent(out) :: oid
   type({type}), pointer, intent(out) :: object
 
-  oid = pybl_{type}_count + 1
-  object => pybl_{type}_store(oid)
-
   pybl_{type}_count = pybl_{type}_count + 1
+  oid = pybl_{type}_count
+
+  allocate(pybl_{type}_store(oid)%ptr)
+  object => pybl_{type}_store(oid)%ptr
 end subroutine pybl_{type}_new
 '''
 
@@ -59,5 +64,3 @@ with open('blobjects.f90', 'w') as f:
     f.write(module.format(
         stores='\n'.join(stores),
         routines='\n'.join(routines)))
-
-

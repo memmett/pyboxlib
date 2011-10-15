@@ -3,3 +3,7 @@
 
 t
 *.pyc
+
+src/blobjects.f90
+src/fboxlib.pyf
+src/pyfboxlib.pyf
