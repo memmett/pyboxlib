@@ -120,7 +120,7 @@ contains
     ng = mfab%ng
   end subroutine get_multifab_info
 
-  subroutine get_fab_info(oid, nbox, dim, nc, bx_lo, bx_hi, pbx_lo, pbx_hi, ibx_lo, ibx_hi)
+  subroutine get_multifab_fab_info(oid, nbox, dim, nc, bx_lo, bx_hi, pbx_lo, pbx_hi, ibx_lo, ibx_hi)
     implicit none
     integer, intent(in) :: oid, nbox
     integer, intent(out) :: dim, nc
@@ -143,7 +143,7 @@ contains
     bx = get_ibox(mfab%fbs(nbox))
     ibx_lo = bx%lo
     ibx_hi = bx%hi
-  end subroutine get_fab_info
+  end subroutine get_multifab_fab_info
 
   subroutine create_multifab_from_layout(la_oid,nc,ng,oid)
     implicit none
@@ -172,9 +172,50 @@ contains
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! lmultifab routines
 
-  subroutine create_lmultifab_from_layout(la_oid,oid)
+  ! XXX: these are all exactly the same as above (multifab).  both
+  ! should be generated automatically.
+
+  subroutine get_lmultifab_info(oid, dim, nboxes, nc, ng)
     implicit none
-    integer, intent(in)  :: la_oid
+    integer, intent(in) :: oid
+    integer, intent(out) :: dim, nboxes, nc, ng
+    type(lmultifab), pointer :: mfab
+
+    call pybl_lmultifab_get(oid,mfab)
+    dim = mfab%dim
+    nboxes = mfab%nboxes
+    nc = mfab%nc
+    ng = mfab%ng
+  end subroutine get_lmultifab_info
+
+  subroutine get_lmultifab_fab_info(oid, nbox, dim, nc, bx_lo, bx_hi, pbx_lo, pbx_hi, ibx_lo, ibx_hi)
+    implicit none
+    integer, intent(in) :: oid, nbox
+    integer, intent(out) :: dim, nc
+    integer, intent(out), dimension(3) :: bx_lo, bx_hi, pbx_lo, pbx_hi, ibx_lo, ibx_hi
+    type(lmultifab), pointer :: mfab
+    type(box) :: bx
+
+    call pybl_lmultifab_get(oid,mfab)
+    dim = get_dim(mfab%fbs(nbox))
+    nc = ncomp(mfab%fbs(nbox))
+
+    bx = get_box(mfab%fbs(nbox))
+    bx_lo = bx%lo
+    bx_hi = bx%hi
+
+    bx = get_pbox(mfab%fbs(nbox))
+    pbx_lo = bx%lo
+    pbx_hi = bx%hi
+
+    bx = get_ibox(mfab%fbs(nbox))
+    ibx_lo = bx%lo
+    ibx_hi = bx%hi
+  end subroutine get_lmultifab_fab_info
+
+  subroutine create_lmultifab_from_layout(la_oid,nc,ng,oid)
+    implicit none
+    integer, intent(in)  :: la_oid, nc, ng
     integer, intent(out) :: oid
 
     type(layout), pointer :: la

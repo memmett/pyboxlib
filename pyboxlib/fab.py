@@ -34,10 +34,11 @@ class fab(object):
 
     assert 1 <= nbox <= mfab.nboxes
 
-    (self.dim, self.nc, self.bx_lo, self.bx_hi, self.pbx_lo, self.pbx_hi,
-     self.ibx_lo, self.ibx_hi) = fboxlib.get_fab_info(mfab.oid, nbox)
-
+    get_info  = getattr(fboxlib,   'get_' + self.mfab.__class__.__name__ + '_fab_info')
     get_array = getattr(pyfboxlib, self.mfab.__class__.__name__ + '_array')
+
+    (self.dim, self.nc, self.bx_lo, self.bx_hi, self.pbx_lo, self.pbx_hi,
+     self.ibx_lo, self.ibx_hi) = get_info(mfab.oid, nbox)
 
     self.array = get_array(self.mfab.oid, nbox).squeeze()
 

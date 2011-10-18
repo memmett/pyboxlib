@@ -3,9 +3,9 @@
 import numpy as np
 
 from pyfboxlib import fboxlib
-
+from boxarray import boxarray
 import base
-import boxarray
+
 
 class layout(base.BLObject):
   """BoxLib layout."""
@@ -22,7 +22,7 @@ class layout(base.BLObject):
     if boxarray is not None:
       self.oid = fboxlib.create_layout_from_boxarray(boxarray.oid)
 
-  def from_regrid(lmfab):
+  def from_regrid(self, lmfab):
     """Create a layout from re-gridding a tagged multifab."""
 
     ba = boxarray()
