@@ -1,6 +1,6 @@
 
 import numpy as np
-from pyfboxlib import fboxlib, multifab_array, lmultifab_array
+from pyfboxlib import fboxlib
 import base
 
 from fab import fab
@@ -8,45 +8,37 @@ from fab import fab
 class multifab(base.BLObject):
   """MultiFAB."""
 
-  def create(self, components=1, ghost_cells=0, boxarray=None, boxes=None):
-    """Create a multifab from a list of boxes.
+  def create(self, layout, components=1, ghost_cells=0):
+    """Create a multifab from a layout."""
 
-    Implicitly creates a layout.
-    """
+    create_from_layout = getattr(fboxlib, 'create_' + self.__class__.__name__ + '_from_layout')
+    get_info = getattr(fboxlib, 'get_' + self.__class__.__name__ + '_info')
 
-    if boxarray is not None:
-      self.oid = fboxlib.create_multifab_from_boxarray(components, ghost_cells, boxarray.oid)
-    elif boxes is not None:
-      self.oid = fboxlib.create_multifab_from_boxes(components, ghost_cells, boxes)
+    self.oid = create_from_layout(layout.oid, components, ghost_cells)
 
     if self.oid:
-      self.dim, self.nboxes, self.nc, self.ng = fboxlib.get_multifab_info(self.oid)
-
-  # def fab(self, box):
-  #   return multifab_array(self.oid, box)
+      self.dim, self.nboxes, self.nc, self.ng = get_info(self.oid)
 
   def fab(self, box):
     return fab(self, box)
 
 
-
-class lmultifab(base.BLObject):
+class lmultifab(multifab):
   """Logical MultiFAB."""
 
-  def create(self, boxes=[]):
-    """Create a logical (boolean) multifab from a list of boxes.
+  pass
 
-    Implicitly creates a layout.
-    """
+  # def create(self, layout):
+  #   """Create a logical (boolean) multifab from a layout."""
 
-    if boxes:
-      self.oid = fboxlib.create_lmultifab_from_boxes(boxes)
+  #   self.oid = fboxlib.create_lmultifab_from_layout(layout.oid)
 
-  # XXX: add a more fancy get/set
-  def array(self, box):
-    return lmultifab_array(self.oid, box)
+  #   if self.oid:
+  #     self.dim, self.nboxes = fboxlib.get_lmultifab_info(self.oid)
 
-  # XXX: delete routines...
+  # # # XXX: add a more fancy get/set
+  # # def array(self, box):
+  # #   return lmultifab_array(self.oid, box)
 
 
 

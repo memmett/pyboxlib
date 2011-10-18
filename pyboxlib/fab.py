@@ -1,5 +1,6 @@
 
-from pyfboxlib import fboxlib, multifab_array
+import pyfboxlib
+from pyfboxlib import fboxlib
 
 
 class fab(object):
@@ -36,7 +37,9 @@ class fab(object):
     (self.dim, self.nc, self.bx_lo, self.bx_hi, self.pbx_lo, self.pbx_hi,
      self.ibx_lo, self.ibx_hi) = fboxlib.get_fab_info(mfab.oid, nbox)
 
-    self.array = multifab_array(self.mfab.oid, nbox).squeeze()
+    get_array = getattr(pyfboxlib, self.mfab.__class__.__name__ + '_array')
+
+    self.array = get_array(self.mfab.oid, nbox).squeeze()
 
   def __getitem__(self, key):
     return self.array[key]

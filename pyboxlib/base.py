@@ -13,6 +13,8 @@ class BLObject(object):
   def __str__(self):
     return 'pyboxlib type: %s, oid: %d' % (self.__class__.__name__, self.oid)
 
+  # XXX: delete method
+
   def echo(self):
     pr = 'print_' + self.__class__.__name__
     pr = getattr(fboxlib, pr, None)
