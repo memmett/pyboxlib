@@ -34,16 +34,33 @@ class fab(object):
 
     assert 1 <= nbox <= mfab.nboxes
 
-    get_info  = getattr(fboxlib,   'get_' + self.mfab.__class__.__name__ + '_fab_info')
+    get_info = getattr(fboxlib, 'get_' + self.mfab.__class__.__name__ + '_fab_info')
     get_array = getattr(pyfboxlib, self.mfab.__class__.__name__ + '_array')
 
     (self.dim, self.nc, self.bx_lo, self.bx_hi, self.pbx_lo, self.pbx_hi,
      self.ibx_lo, self.ibx_hi) = get_info(mfab.oid, nbox)
 
+    intarray = lambda a: [ int(e) for e in a[:self.dim] ]
+    lohi = lambda lo, hi: (intarray(lo), intarray(hi))
+
+    self.bx  = lohi(self.bx_lo,  self.bx_hi)
+    self.ibx = lohi(self.ibx_lo, self.ibx_hi)
+    self.pbx = lohi(self.pbx_lo, self.pbx_hi)
+
     self.array = get_array(self.mfab.oid, nbox).squeeze()
 
+  @property
+  def shape(self):
+    return self.array.shape
+
+  @property
+  def size(self):
+    return self.array.size
+
   def __getitem__(self, key):
+    # XXX: switch to global indexing
     return self.array[key]
 
   def __setitem__(self, key, value):
+    # XXX: switch to global indexing
     self.array[key] = value

@@ -1,5 +1,3 @@
-BOXLIB_HOME ?= /home/memmett/projects/BoxLib
-
 MPI  := t
 COMP := gfortran
 
@@ -14,19 +12,12 @@ CFLAGS   += -fPIC
 include $(BOXLIB_HOME)/Src/F_BaseLib/GPackage.mak
 VPATH_LOCATIONS += $(BOXLIB_HOME)/Src/F_BaseLib
 
-#include $(BOXLIB_HOME)/Src/LinearSolvers/F_MG/GPackage.mak
-#VPATH_LOCATIONS += $(BOXLIB_HOME)/Src/LinearSolvers/F_MG
+include $(BOXLIB_HOME)/Src/Python/GPackage.mak
 
-# default target
-pybl := src/pyfboxlib.m4 src/fboxlib.f90 src/boxlib_numpy.c src/boxlib_numpy.f90 src/blobjects.py
+# add extra modules
+#pybl_sources +=
 
-pyfboxlib.so: $(objects) $(pybl)
-	cd src && python blobjects.py
-	cd src && f2py --overwrite-signature -h fboxlib.pyf fboxlib.f90
-	cd src && m4 pyfboxlib.m4 > pyfboxlib.pyf
-	@echo Running f2py...
-	@f2py --quiet --fcompiler=gnu95 --f90exec=$(FC) --f90flags="-I $(mdir)" \
-		-c src/pyfboxlib.pyf src/blobjects.f90 src/boxlib_numpy.f90 src/fboxlib.f90 $(objects)
+all: pyfboxlib.so
 
 include $(BOXLIB_HOME)/Tools/F_mk/GMakerules.mak
-
+include $(BOXLIB_HOME)/Src/Python/GMakerules.mak
