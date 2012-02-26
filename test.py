@@ -1,34 +1,27 @@
 
 from pyboxlib import *
 
-fboxlib.open()
+pybl.open()
+
+N = 8
+n = N / pybl.mpi_size()
+
+boxes = []
+for k in range(pybl.mpi_size()):
+    boxes.append( ((1,k*n+1), (N,(k+1)*n)) )
 
 la = layout()
-la.create(boxes=[ [(1,1), (3,3)],
-                  [(7,7), (100,100)],
-                  ])
-
-lmfab = lmultifab()
-lmfab.create(la)
-
-b = lmfab.fab(2)                        # get the second box of lmfab
-b[2:8,2:8] = True                       # direct access (local indexing) to the fortran data array!
-
-print b.shape
-print 'bx: ', b.bx                      # lo/hi bounds of cell indexes (boxes)
-print 'ibx:', b.ibx                     # lo/hi bounds of indexes
-print 'pbx:', b.pbx                     # lo/hi of physical indexes
-
-#lmfab.echo()
-
-la = layout()
-la.from_regrid(lmfab)                   # regrid based on tagged cells in lmfab
-
-la.echo()
+la.create(boxes=boxes)
 
 mfab = multifab()
-mfab.create(la)
-#mfab.echo()
+mfab.create(la, components=1, ghost_cells=2, interleave=False)
 
-fboxlib.close()
+if pybl.mpi_rank() == 1:
+    for b in la.local_boxes:
+        fab = mfab.fab(b)
+        fab[2,5] = 22.0
 
+mfab.fill_boundary()
+mfab.echo()
+
+pybl.close()

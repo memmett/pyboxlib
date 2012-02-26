@@ -1,13 +1,9 @@
-pyfboxlib.so: $(objects) $(tdir)/blobjects.f90 $(tdir)/pyfboxlib.pyf
-	@echo Running f2py...
-	@f2py --quiet --fcompiler=gnu95 --f90exec=$(FC) --f90flags="-I $(mdir)" \
-		-c $(tdir)/pyfboxlib.pyf $(tdir)/blobjects.f90 $(PYBOXLIB)/src/boxlib_numpy.f90 $(pybl_sources) $(objects)
 
-$(tdir)/blobjects.f90: $(PYBOXLIB)/src/blobjects.py
-	cd $(tdir) && python $(PYBOXLIB)/src/blobjects.py
+libpyfboxlib.so: $(objects)
+	mpif90 -shared -o libpyfboxlib.so $(objects)
 
-$(tdir)/%.pyf: %.f90
-	f2py --overwrite-signature -h $@ $<
+NPINCLUDE=-I/usr/include/python2.7
+NPINCLUDE+=-I/usr/lib64/python2.7/site-packages/numpy/core/include/numpy
 
-$(tdir)/pyfboxlib.pyf: $(PYBOXLIB)/src/boxlib_numpy.c $(pybl_pyfs) $(pybl_sources)
-	@$(PYBOXLIB)/mkpyfboxlib $(PYBOXLIB)/src/boxlib_numpy.c $(pybl_pyfs) > $(tdir)/pyfboxlib.pyf
+libpycboxlib.so: $(PYBOXLIB)/src/boxlib_numpy.c
+	 gcc -fPIC -shared $(NPINCLUDE) -L. -lpyfboxlib -o libpycboxlib.so $(PYBOXLIB)/src/boxlib_numpy.c 
