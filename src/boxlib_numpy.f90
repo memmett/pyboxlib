@@ -4,7 +4,8 @@ module boxlib_numpy
 
 contains
 
-  subroutine multifab_as_numpy_f(cptr, nbox, aptr, n1, n2, n3, n4) bind(c, name='multifab_as_numpy_f')
+  subroutine multifab_as_numpy_f(cptr, nbox, aptr, n1, n2, n3, n4) &
+       bind(c, name='multifab_as_numpy_f')
     use iso_c_binding
     implicit none
 

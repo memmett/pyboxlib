@@ -205,13 +205,15 @@ contains
     ng = mfab%ng
   end subroutine pybl_get_multifab_info
 
-  subroutine pybl_get_multifab_fab_info(cptr, nbox, dim, nc, bx_lo, bx_hi, pbx_lo, pbx_hi, ibx_lo, ibx_hi) &
+  subroutine pybl_get_multifab_fab_info(cptr, nbox, dim, nc, &
+       bx_lo, bx_hi, pbx_lo, pbx_hi, ibx_lo, ibx_hi) &
        bind(c, name='pybl_get_multifab_fab_info')
     implicit none
     type(c_ptr), intent(in), value :: cptr
     integer(c_int), intent(in), value :: nbox
     integer(c_int), intent(out) :: dim, nc
-    integer(c_int), intent(out), dimension(3) :: bx_lo, bx_hi, pbx_lo, pbx_hi, ibx_lo, ibx_hi
+    integer(c_int), intent(out), dimension(3) :: bx_lo, bx_hi, &
+         pbx_lo, pbx_hi, ibx_lo, ibx_hi
     type(multifab), pointer :: mfab
     type(box) :: bx
 
@@ -332,74 +334,6 @@ contains
     call copy(dmfab, 1, smfab, 1, ncomp(smfab))
   end subroutine pybl_multifab_copy
 
-  ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  ! ! lmultifab routines
-
-  ! ! XXX: these are all exactly the same as above (multifab).  both
-  ! ! should be generated automatically.
-
-  ! subroutine pybl_get_lmultifab_info(cptr, dim, nboxes, nc, ng)
-  !   implicit none
-  !   integer, intent(in) :: cptr
-  !   integer, intent(out) :: dim, nboxes, nc, ng
-  !   type(lmultifab), pointer :: mfab
-
-  !   call pybl_lmultifab_get(cptr,mfab)
-  !   dim = mfab%dim
-  !   nboxes = mfab%nboxes
-  !   nc = mfab%nc
-  !   ng = mfab%ng
-  ! end subroutine pybl_get_lmultifab_info
-
-  ! subroutine pybl_get_lmultifab_fab_info(cptr, nbox, dim, nc, bx_lo, bx_hi, pbx_lo, pbx_hi, ibx_lo, ibx_hi)
-  !   implicit none
-  !   integer, intent(in) :: cptr, nbox
-  !   integer, intent(out) :: dim, nc
-  !   integer, intent(out), dimension(3) :: bx_lo, bx_hi, pbx_lo, pbx_hi, ibx_lo, ibx_hi
-  !   type(lmultifab), pointer :: mfab
-  !   type(box) :: bx
-
-  !   call pybl_lmultifab_get(cptr,mfab)
-  !   dim = get_dim(mfab%fbs(nbox))
-  !   nc = ncomp(mfab%fbs(nbox))
-
-  !   bx = get_box(mfab%fbs(nbox))
-  !   bx_lo = bx%lo
-  !   bx_hi = bx%hi
-
-  !   bx = get_pbox(mfab%fbs(nbox))
-  !   pbx_lo = bx%lo
-  !   pbx_hi = bx%hi
-
-  !   bx = get_ibox(mfab%fbs(nbox))
-  !   ibx_lo = bx%lo
-  !   ibx_hi = bx%hi
-  ! end subroutine pybl_get_lmultifab_fab_info
-
-  ! subroutine pybl_create_lmultifab_from_layout(la_cptr,nc,ng,interleave,cptr)
-  !   implicit none
-  !   integer, intent(in)  :: la_cptr, nc, ng
-  !   logical, intent(in)  :: interleave
-  !   integer, intent(out) :: cptr
-
-  !   type(layout), pointer :: la
-  !   type(lmultifab), pointer :: mfab
-
-  !   call pybl_lmultifab_new(cptr,mfab)
-  !   call pybl_layout_get(la_cptr,la)
-
-  !   call build(mfab, la)
-  !   call setval(mfab, .false.)
-  ! end subroutine pybl_create_lmultifab_from_layout
-
-  ! subroutine pybl_print_lmultifab(cptr)
-  !   implicit none
-  !   integer, intent(in) :: cptr
-  !   type(lmultifab), pointer :: mfab
-
-  !   call pybl_lmultifab_get(cptr, mfab)
-  !   call print(mfab)
-  ! end subroutine pybl_print_lmultifab
 
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ! regrid
